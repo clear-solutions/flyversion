@@ -27,11 +27,17 @@ repositories {
 }
 
 dependencies {
+
+	compile 'ch.qos.logback:logback-classic:1.1.7'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
 	testImplementation(platform('org.junit:junit-bom:5.7.0'))
 	testImplementation('org.junit.jupiter:junit-jupiter')
+	testCompile group: 'com.google.guava', name: 'guava', version: '30.0-jre'
+	testCompile group: 'org.assertj', name: 'assertj-core', version: '3.18.1'
+
+
 }
 
 test {
