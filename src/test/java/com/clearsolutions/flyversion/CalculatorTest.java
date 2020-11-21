@@ -14,6 +14,7 @@ class CalculatorTest {
     void addsTwoNumbers() {
         Calculator calculator = new Calculator();
         assertEquals(2, calculator.add(1, 1), "1 + 1 should equal 2");
+        System.out.println("sfds");
     }
 
     @ParameterizedTest(name = "{0} + {1} = {2}")
