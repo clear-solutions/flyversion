@@ -1,70 +1,47 @@
 package com.clearsolutions.flyversion;
 
-import com.clearsolutions.flyversion.history.HistoryInformation;
+import com.clearsolutions.flyversion.filter.Filter;
 import com.clearsolutions.flyversion.history.HistoryProvider;
 import com.clearsolutions.flyversion.history.HistorySaver;
 import com.clearsolutions.flyversion.listener.ErrorListener;
 import com.clearsolutions.flyversion.script.Information;
+import com.clearsolutions.flyversion.script.Result;
 import com.clearsolutions.flyversion.script.ScriptProvider;
 import com.clearsolutions.flyversion.script.ScriptRunner;
+import lombok.RequiredArgsConstructor;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 
-import static java.util.stream.Collectors.toMap;
-
+@RequiredArgsConstructor
 class FlyVersionRunner<Script> {
 
     private final ErrorListener errorListener;
     private final ScriptProvider<Script> scriptProvider;
     private final ScriptRunner<Script> scriptRunner;
     private final HistoryProvider historyProvider;
-    private final HistorySaver historySaver;
-    private final Function<Map.Entry<List<Information<Script>>, List<HistoryInformation>>, List<Information<Script>>>
-        filter;
-    private final String version;
-
-    public FlyVersionRunner(ErrorListener errorListener,
-                            ScriptProvider<Script> scriptProvider,
-                            ScriptRunner<Script> scriptRunner,
-                            HistoryProvider historyProvider,
-                            HistorySaver historySaver,
-                            Function<Map.Entry<List<Information<Script>>, List<HistoryInformation>>, List<Information<Script>>> filter,
-                            String version) {
-        this.errorListener = errorListener;
-        this.scriptProvider = scriptProvider;
-        this.scriptRunner = scriptRunner;
-        this.historyProvider = historyProvider;
-        this.historySaver = historySaver;
-        this.filter = filter;
-        this.version = version;
-    }
+    private final HistorySaver<Script> historySaver;
+    private final Filter filter;
+    private final Double environmentVersion;
 
     public void run() {
-        List<Information<Script>> filteredScripts = filter.apply(new AbstractMap.SimpleImmutableEntry<>(
-            scriptProvider.getScripts(),
-            historyProvider.getHistory()
-        ));
+        List<Information<Script>> filteredScripts =
+            this.filter.filter(scriptProvider.getScripts(), historyProvider.getHistory(), environmentVersion);
 
-        filteredScripts.stream()
-                       .map(script -> scriptRunner.run(script, version))
-                       .forEach(result -> result.isSuccess(historySaver::save).isFailure(errorListener::on));
+        for (Information<Script> information : filteredScripts) {
+            Result result = scriptRunner.run(information)
+                                        .successHandler(this::handle)
+                                        .failureHandler(this::errorHandle);
+            if (result.isFailed()) {
+                break;
+            }
+        }
     }
 
-    public Function<Map.Entry<List<Information<Script>>, List<HistoryInformation>>, List<Information<Script>>> getFilter() {
-        return pair -> {
-            Map<String, Information<Script>> scripts = pair.getKey()
-                                                           .stream()
-                                                           .collect(toMap(Information::getVersion, o -> o));
+    private void handle(Information<Script> information) {
+        historySaver.save(information);
+    }
 
-            List<HistoryInformation> history = pair.getValue();
-            for (HistoryInformation historyInformation : history) {
-                scripts.remove(historyInformation.getVersion());
-            }
-            return new ArrayList<>(scripts.values());
-        };
+    private void errorHandle(Throwable error) {
+        errorListener.on(error);
     }
 }

@@ -9,9 +9,8 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class Information<Script> {
 
-    private String version;
-    private Script doScript;
-    private Script undoScript;
+    private Double version;
+    private Script script;
     private String name;
-    private String type;
+    private ScriptType type;
 }

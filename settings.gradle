@@ -1,4 +1,5 @@
 rootProject.name = 'flyversion'
 include 'test'
 include 'core'
+include 'jdbc-fly-runner'
 

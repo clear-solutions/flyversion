@@ -2,5 +2,5 @@ package com.clearsolutions.flyversion.script;
 
 public interface ScriptRunner<Script> {
 
-    Result run(Information<Script> script, String version);
+    Result run(Information<Script> script);
 }

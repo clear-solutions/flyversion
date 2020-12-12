@@ -9,5 +9,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 public class HistoryInformation {
 
-    private String version;
+    private Double version;
+    private Double environmentVersion;
 }
