@@ -1,6 +1,6 @@
 package com.clearsolutions.flyversion.script;
 
-public interface ScriptRunner<Script> {
+public interface ScriptRunner<T> {
 
-    Result run(Information<Script> script);
+    Result<T> run(Information<T> script);
 }

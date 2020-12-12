@@ -2,6 +2,6 @@ package com.clearsolutions.flyversion.script;
 
 import java.util.List;
 
-public interface ScriptProvider<Script> {
-    List<Information<Script>> getScripts();
+public interface ScriptProvider<T> {
+    List<Information<T>> getScripts();
 }

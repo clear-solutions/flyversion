@@ -2,7 +2,7 @@ package com.clearsolutions.flyversion.history;
 
 import com.clearsolutions.flyversion.script.Information;
 
-public interface HistorySaver<Script> {
+public interface HistorySaver<T> {
 
-    HistoryInformation save(Information<Script> information);
+    HistoryInformation save(Information<T> information);
 }

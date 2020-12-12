@@ -1,17 +1,21 @@
 package com.clearsolutions.flyversion.script;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.Optional;
 import java.util.function.Consumer;
 
-@RequiredArgsConstructor
-public class Result {
+import static java.util.Optional.ofNullable;
 
-    private Optional<Information> scriptMetaInformation;
-    private Optional<Throwable> error;
+public class Result<T> {
 
-    public Result successHandler(Consumer<Information> supplier) {
+    private final Optional<Information<T>> scriptMetaInformation;
+    private final Optional<Throwable> error;
+
+    public Result(Information<T> scriptMetaInformation, Throwable error) {
+        this.scriptMetaInformation = ofNullable(scriptMetaInformation);
+        this.error = ofNullable(error);
+    }
+
+    public Result<T> successHandler(Consumer<Information<T>> supplier) {
         scriptMetaInformation.ifPresent(supplier::accept);
         return this;
     }
@@ -24,7 +28,7 @@ public class Result {
         return scriptMetaInformation.isPresent();
     }
 
-    public Result failureHandler(Consumer<Throwable> supplier) {
+    public Result<T> failureHandler(Consumer<Throwable> supplier) {
         error.ifPresent(supplier::accept);
         return this;
     }
